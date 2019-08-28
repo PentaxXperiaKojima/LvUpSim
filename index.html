@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>FE LevelUp Simulator</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="./js/bootstrap.min.js"></script>
+</head>
+
+<body class="bg-info" >
+    <blockquote class="blockquote">
+        <p class="mb-0 midashi">FE レベルアップシミュレーター ver_0.2</p>
+        <footer class="blockquote-footer midashi">初期値・成長率を設定してレベルアップのシミュレートができます。</footer>
+    </blockquote>
+
+    <div id="vueArea">
+        <ul class="nav justify-content-center">
+            <li class="nav-item" >
+                <div v-on:click.prevent="showPage = '1'"><a class="nav-link active" href="#">ステータス</a></div>
+            </li>
+            <li class="nav-item">
+                <div v-on:click.prevent="showPage = '2'"><a class="nav-link" href="#" >クラスチェンジ</a></div>
+            </li>
+        </ul>
+
+        <div class="container" >
+            <div v-if="showPage == '1'">
+                <footer class="blockquote-footer midashi">初期値と成長率を設定してください。</footer>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>キャラ名</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <input type="text" class="form-control" v-model="nameVal">
+                        </div>
+                    </div>
+                    <div class="col-3 midashi"><label>レベル</label></div>
+                    <div class="col-3">
+                        <select v-model="level.base" class="form-control level" v-on:change="level.up = '0'">
+                            <option v-for="n in 20">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>HP</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="hp.base" class="form-control" v-on:change="hp.up = '0'">
+                                <option v-for="n in 61">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 midashi"><label>成長(%)</label></div>
+                    <div class="col-3">
+                        <select v-model="hp.rate" class="form-control">
+                            <option v-for="n in rateNum">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>力</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="atk.base" class="form-control" v-on:change="atk.up = '0'">
+                                <option v-for="n in 31">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 midashi"><label>成長(%)</label></div>
+                    <div class="col-3">
+                        <select v-model="atk.rate" class="form-control">
+                            <option v-for="n in rateNum">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3 midashi"><label>技</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="crt.base" class="form-control" v-on:change="crt.up = '0'">
+                                <option v-for="n in 31">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 midashi"><label>成長(%)</label></div>
+                    <div class="col-3">
+                        <select v-model="crt.rate" class="form-control">
+                            <option v-for="n in rateNum">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>速さ</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="speed.base" class="form-control" v-on:change="speed.up = '0'">
+                                <option v-for="n in 31">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 midashi"><label>成長(%)</label></div>
+                    <div class="col-3">
+                        <select v-model="speed.rate" class="form-control">
+                            <option v-for="n in rateNum">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>幸運</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="luck.base" class="form-control" v-on:change="luck.up = '0'">
+                                <option v-for="n in 31">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 midashi"><label>成長(%)</label></div>
+                    <div class="col-3">
+                        <select v-model="luck.rate" class="form-control">
+                            <option v-for="n in rateNum">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>守備</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="def.base" class="form-control" v-on:change="def.up = '0'">
+                                <option v-for="n in 31">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 midashi"><label>成長(%)</label></div>
+                    <div class="col-3">
+                        <select v-model="def.rate" class="form-control">
+                            <option v-for="n in rateNum">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>魔防</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="magic.base" class="form-control" v-on:change="magic.up = '0'">
+                                <option v-for="n in 31">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-3 midashi"><label>成長(%)</label></div>
+                    <div class="col-3">
+                        <select v-model="magic.rate" class="form-control">
+                            <option v-for="n in rateNum">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+
+            <div v-if="showPage == '2'">
+                <footer class="blockquote-footer midashi">クラスチェンジ時のボーナスを設定してください。</footer>
+                <div class="row">
+                    <div class="col-3 midashi"><label>HP</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="hp.bonus" class="form-control">
+                                <option v-for="n in 10">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3 midashi"><label>力</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="atk.bonus" class="form-control">
+                                <option v-for="n in 11">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-3 midashi"><label>技</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="crt.bonus" class="form-control">
+                                <option v-for="n in 11">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>速さ</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="speed.bonus" class="form-control">
+                                <option v-for="n in 11">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>幸運</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="luck.bonus" class="form-control">
+                                <option v-for="n in 11">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>守備</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="def.bonus" class="form-control">
+                                <option v-for="n in 11">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-3 midashi"><label>魔防</label></div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <select v-model="magic.bonus" class="form-control">
+                                <option v-for="n in 11">{{ n - 1 }}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">ステータス</th>
+                        <th scope="col">値</th>
+                        <th scope="col">成長率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>名前</td>
+                        <td colspan="2">{{nameVal}}</td>
+                    </tr>
+                    <tr>
+                        <td>レベル</td>
+                        <td colspan="2">{{ Number(level.base) + Number(level.up) }}</td>
+                    </tr>
+                    <tr>
+                        <td id="hp">HP <span v-if="hp.badgeUp || hp.badgeChange" class="badge" v-bind:class="{ 'badge-primary':hp.badgeUp , 'badge-warning': hp.badgeChange }">↑</span></td>
+                        <td>{{ Number(hp.base) + Number(hp.up) }}</td>
+                        <td>{{ Number(hp.rate) }}%</td>
+                    </tr>
+                    <tr>
+                        <td id="atk">力 <span v-if="atk.badgeUp || atk.badgeChange" class="badge" v-bind:class="{ 'badge-primary':atk.badgeUp , 'badge-warning': atk.badgeChange }">↑</span></td>
+                        <td>{{ Number(atk.base) + Number(atk.up) }}</td>
+                        <td>{{ Number(atk.rate) }}%</td>
+                    </tr>
+                    <tr>
+                        <td id="crt">技 <span v-if="crt.badgeUp || crt.badgeChange" class="badge" v-bind:class="{ 'badge-primary':crt.badgeUp , 'badge-warning': crt.badgeChange }">↑</span></td>
+                        <td>{{ Number(crt.base) + Number(crt.up) }}</td>
+                        <td>{{ Number(crt.rate) }}%</td>
+                    </tr>
+                    <tr>
+                        <td id="speed">速さ <span v-if="speed.badgeUp || speed.badgeChange" class="badge" v-bind:class="{ 'badge-primary':speed.badgeUp , 'badge-warning': speed.badgeChange }">↑</span></td>
+                        <td>{{ Number(speed.base) + Number(speed.up) }}</td>
+                        <td>{{ Number(speed.rate) }}%</td>
+                    </tr>
+                    <tr>
+                        <td id="luck">幸運 <span v-if="luck.badgeUp || luck.badgeChange" class="badge" v-bind:class="{ 'badge-primary':luck.badgeUp , 'badge-warning': luck.badgeChange }">↑</span></td>
+                        <td>{{ Number(luck.base) + Number(luck.up) }}</td>
+                        <td>{{ Number(luck.rate) }}%</td>
+                    </tr>
+                    <tr>
+                        <td id="def">守備 <span v-if="def.badgeUp || def.badgeChange" class="badge" v-bind:class="{ 'badge-primary':def.badgeUp , 'badge-warning': def.badgeChange }">↑</span></td>
+                        <td>{{ Number(def.base) + Number(def.up) }}</td>
+                        <td>{{ Number(def.rate) }}%</td>
+                    </tr>
+                    <tr>
+                        <td id="magic">魔防 <span v-if="magic.badgeUp || magic.badgeChange" class="badge" v-bind:class="{ 'badge-primary':magic.badgeUp , 'badge-warning': magic.badgeChange }">↑</span></td>
+                        <td>{{ Number(magic.base) + Number(magic.up) }}</td>
+                        <td>{{ Number(magic.rate) }}%</td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <div class="row">
+                <button id="levelUp" type="button" class="btn btn-primary btn-lg col-4" v-on:click="levelUp">Level Up !!</button>
+                <button id="ClassChange" type="button" class="btn btn-primary btn-lg col-4" v-on:click="classChange">Class Change !!</button>
+                <button id="Reset" type="button" class="btn btn-primary btn-lg col-4" v-on:click="statusReset">Status Reset</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="./js/main.js"></script>
+
+</html>
